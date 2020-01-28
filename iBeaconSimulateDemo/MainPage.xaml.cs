@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -24,9 +25,15 @@ namespace iBeaconSimulateDemo
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        BluetoothLEAdvertisementPublisher publisher;
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            // Setup publisher
+            publisher = new BluetoothLEAdvertisementPublisher();
+            publisher.StatusChanged += Publisher_StatusChanged;
 
             // Keep Broadcasting animation large
             SizeChanged += MainPage_SizeChanged;
@@ -35,6 +42,12 @@ namespace iBeaconSimulateDemo
             TransitionToBroad.Completed += ContinueWithBroadcast;
             TransitionToStarting.Completed += ContinueWithStarting;
             TransitionToError.Completed += ContinueWithError;
+        }
+
+        private void Publisher_StatusChanged(BluetoothLEAdvertisementPublisher sender, 
+            BluetoothLEAdvertisementPublisherStatusChangedEventArgs args)
+        {
+            throw new NotImplementedException();
         }
 
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
