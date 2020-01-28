@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using Windows.ApplicationModel.Core;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -21,6 +22,14 @@ using Windows.UI.Xaml.Navigation;
 
 namespace iBeaconSimulateDemo
 {
+    enum DisplayStates
+    {
+        Good,
+        Wait,
+        Error
+    }
+
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -31,6 +40,9 @@ namespace iBeaconSimulateDemo
         private short MajorKey;
         private short MinorKey;
         private Random Rand;
+
+        private static object lockObject;
+        private DisplayStates state;
 
         public MainPage()
         {
@@ -53,12 +65,45 @@ namespace iBeaconSimulateDemo
             TransitionToBroad.Completed += ContinueWithBroadcast;
             TransitionToStarting.Completed += ContinueWithStarting;
             TransitionToError.Completed += ContinueWithError;
+            lockObject = new object();
         }
 
         private void Publisher_StatusChanged(BluetoothLEAdvertisementPublisher sender, 
             BluetoothLEAdvertisementPublisherStatusChangedEventArgs args)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine(args.Status);
+            Debug.WriteLine(args.Error);
+            lock (lockObject)
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    switch (args.Status)
+                    {
+                        case BluetoothLEAdvertisementPublisherStatus.Waiting:
+                            TransitionToStarting.Begin();
+                            state = DisplayStates.Wait;
+                            break;
+                        case BluetoothLEAdvertisementPublisherStatus.Started:
+                            TransitionToBroad.Begin();
+                            state = DisplayStates.Good;
+                            break;
+                        case BluetoothLEAdvertisementPublisherStatus.Stopping:
+                            TransitionToStarting.Begin();
+                            state = DisplayStates.Wait;
+                            break;
+                        case BluetoothLEAdvertisementPublisherStatus.Stopped:
+                            Stop.Begin();
+                            break;
+                        case BluetoothLEAdvertisementPublisherStatus.Created:
+                            break;
+                        case BluetoothLEAdvertisementPublisherStatus.Aborted:
+                            TransitionToError.Begin();
+                            state = DisplayStates.Error;
+                            break;
+                    }
+                    Status.Text = args.Status.ToString();
+                }).AsTask().Wait();
+            }
         }
 
         private byte[] CreatePayload()
@@ -97,6 +142,11 @@ namespace iBeaconSimulateDemo
             // Send the data to the publisher and start publishing.
             publisher.Advertisement.ManufacturerData.Add(data);
             publisher.Start();
+
+            // Display in UI
+            UUID.Text = $"UUID: {UUID_Val.ToString()}";
+            Major.Text = $"Major: {MajorKey}";
+            Minor.Text = $"Minor: {MinorKey}";
         }
 
         private void StopBroadcasting()
@@ -115,26 +165,35 @@ namespace iBeaconSimulateDemo
         {
             if (Toggle.IsOn)
             {
-                TransitionToStarting.Begin();
+                StartBroadcasting();
             } else
             {
-                TransitionToError.Begin();
+                StopBroadcasting();
             }
         }
 
         private void ContinueWithBroadcast(object sender, object e)
         {
-            BroadcastingAnimation.Begin();
+            if (state == DisplayStates.Good)
+            {
+                BroadcastingAnimation.Begin();
+            }
         }
 
         private void ContinueWithStarting(object sender, object e)
         {
-            StartingAnimation.Begin();
+            if (state == DisplayStates.Wait)
+            {
+                StartingAnimation.Begin();
+            }
         }
 
         private void ContinueWithError(object sender, object e)
         {
-            ErrorAnimation.Begin();
+            if (state == DisplayStates.Error)
+            {
+                ErrorAnimation.Begin();
+            }
         }
     }
 }
