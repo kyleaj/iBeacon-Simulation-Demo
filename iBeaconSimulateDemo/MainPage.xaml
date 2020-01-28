@@ -8,7 +8,84 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Page.Resources>
+        <CubicEase x:Name="EaseIn" EasingMode="EaseIn"/>
+        <CubicEase x:Name="EaseInOut" EasingMode="EaseInOut"/>
+        <Storyboard x:Name="BroadcastingAnimation" RepeatBehavior="Forever" Duration="0:0:2">
+            <ColorAnimation From="LightBlue" To="LightBlue" Duration="0:0:1" Storyboard.TargetName="BroadcastAnimFill" Storyboard.TargetProperty="Color"/>
+            <DoubleAnimation From="1" To="0" Storyboard.TargetName="BroadcastAnim" Storyboard.TargetProperty="Opacity" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+            <DoubleAnimation x:Name="BroadWidth" From="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+            <DoubleAnimation x:Name="BroadHeight" From="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+        </Storyboard>
+        <Storyboard x:Name="StartingAnimation" RepeatBehavior="Forever" AutoReverse="True">
+            <ColorAnimation From="Yellow" To="Orange" Duration="0:0:1" Storyboard.TargetName="BroadcastAnimFill" Storyboard.TargetProperty="Color"/>
+            <DoubleAnimation From="1" To="1" Storyboard.TargetName="BroadcastAnim" Storyboard.TargetProperty="Opacity" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+            <DoubleAnimation To="2" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+            <DoubleAnimation To="2" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+        </Storyboard>
+        <Storyboard x:Name="ErrorAnimation" RepeatBehavior="Forever" AutoReverse="True">
+            <ColorAnimation From="Red" To="DarkRed" Duration="0:0:1" Storyboard.TargetName="BroadcastAnimFill" Storyboard.TargetProperty="Color"/>
+            <DoubleAnimation From="1" To="1" Storyboard.TargetName="BroadcastAnim" Storyboard.TargetProperty="Opacity" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+            <DoubleAnimation To="2" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+            <DoubleAnimation To="2" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+        </Storyboard>
+        <Storyboard x:Name="TransitionToBroad">
+            <DoubleAnimation To="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+            <DoubleAnimation To="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+        </Storyboard>
+        <Storyboard x:Name="Stop">
+            <DoubleAnimation To="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+            <DoubleAnimation To="0" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+        </Storyboard>
+        <Storyboard x:Name="TransitionToStarting" Duration="0:0:1.1">
+            <ColorAnimation To="Yellow" Storyboard.TargetName="BroadcastAnimFill" Storyboard.TargetProperty="Color" Duration="0:0:1"/>
+            <DoubleAnimation To="1" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+            <DoubleAnimation To="1" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseInOut}"/>
+        </Storyboard>
+        <Storyboard x:Name="TransitionToError">
+            <ColorAnimation To="Red" Storyboard.TargetName="BroadcastAnimFill" Storyboard.TargetProperty="Color" Duration="0:0:1"/>
+            <DoubleAnimation To="1" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleX" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+            <DoubleAnimation To="1" Storyboard.TargetName="BroadAnimScale" Storyboard.TargetProperty="ScaleY" Duration="0:0:1" EasingFunction="{StaticResource EaseIn}"/>
+        </Storyboard>
+    </Page.Resources>
 
-    </Grid>
+    <RelativePanel x:Name="PanelHolder">
+        <Ellipse x:Name="BroadcastAnim" 
+                 RelativePanel.AlignHorizontalCenterWithPanel="True"
+                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                 Width="100" Height="100" RenderTransformOrigin="0.5,0.5">
+            <Ellipse.Fill>
+                <SolidColorBrush x:Name="BroadcastAnimFill" Color="Transparent"/>
+            </Ellipse.Fill>
+            <Ellipse.RenderTransform>
+                <ScaleTransform x:Name="BroadAnimScale" ScaleX="0" ScaleY="0"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        <TextBlock Text="iBeacon Simulator" Style="{ThemeResource HeaderTextBlockStyle}"
+                   RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True"
+                   Margin="32" HorizontalAlignment="Center"/>
+        <TextBlock Text="Toggle Beacon" RelativePanel.Above="Toggle" 
+                   RelativePanel.AlignHorizontalCenterWithPanel="True"
+                   Style="{ThemeResource TitleTextBlockStyle}"
+                   Margin="8"/>
+        <ToggleSwitch x:Name="Toggle"
+                RelativePanel.AlignVerticalCenterWithPanel="True" 
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                      Toggled="Toggle_Toggled"
+                      OnContent="Active"
+                      OffContent="Inactive"/>
+        <TextBlock x:Name="Status" RelativePanel.Below="Toggle" RelativePanel.Above="UUID"
+                   VerticalAlignment="Center"
+                   RelativePanel.AlignHorizontalCenterWithPanel="True"
+                   Text="Disabled" Style="{ThemeResource TitleTextBlockStyle}"/>
+        <TextBlock x:Name="UUID" Text="" Style="{ThemeResource SubtitleTextBlockStyle}"
+                   RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Above="Major"
+                   Margin="8"/>
+        <TextBlock x:Name="Major" Text="" Style="{ThemeResource SubtitleTextBlockStyle}"
+                   RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Above="Minor"
+                   Margin="0"/>
+        <TextBlock x:Name="Minor" Text="" Style="{ThemeResource SubtitleTextBlockStyle}"
+                   RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
+                   Margin="8"/>
+    </RelativePanel>
 </Page>
