@@ -99,6 +99,11 @@ namespace iBeaconSimulateDemo
             publisher.Start();
         }
 
+        private void StopBroadcasting()
+        {
+            publisher.Stop();
+        }
+
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             double radius = Math.Sqrt(Math.Pow(e.NewSize.Width, 2) + Math.Pow(e.NewSize.Height, 2));
