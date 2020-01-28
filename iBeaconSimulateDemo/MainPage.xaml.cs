@@ -84,6 +84,21 @@ namespace iBeaconSimulateDemo
             return payload.ToArray();
         }
 
+        private void StartBroadcasting()
+        {
+            // Get the payload
+            byte[] payload = CreatePayload();
+
+            // Format the payload and add a company id (must be set to Apple's id for iBeacons)
+            var data = new BluetoothLEManufacturerData();
+            data.CompanyId = 0x004c; // This is Apple's company id. It must be set for all iBeacons.
+            data.Data = payload.AsBuffer();
+
+            // Send the data to the publisher and start publishing.
+            publisher.Advertisement.ManufacturerData.Add(data);
+            publisher.Start();
+        }
+
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             double radius = Math.Sqrt(Math.Pow(e.NewSize.Width, 2) + Math.Pow(e.NewSize.Height, 2));
