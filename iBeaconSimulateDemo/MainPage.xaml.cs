@@ -48,10 +48,6 @@ namespace iBeaconSimulateDemo
         {
             this.InitializeComponent();
 
-            // Setup publisher
-            publisher = new BluetoothLEAdvertisementPublisher();
-            publisher.StatusChanged += Publisher_StatusChanged;
-
             // Setup things we'll use to setup the beacon
             Rand = new Random();
             UUID_Val = Guid.Empty;
@@ -131,6 +127,10 @@ namespace iBeaconSimulateDemo
 
         private void StartBroadcasting()
         {
+            // Setup publisher
+            publisher = new BluetoothLEAdvertisementPublisher();
+            publisher.StatusChanged += Publisher_StatusChanged;
+
             // Get the payload
             byte[] payload = CreatePayload();
 
