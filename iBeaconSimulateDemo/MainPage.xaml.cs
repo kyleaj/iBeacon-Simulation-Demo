@@ -26,7 +26,8 @@ namespace iBeaconSimulateDemo
     {
         Good,
         Wait,
-        Error
+        Error,
+        Done
     }
 
 
@@ -89,6 +90,7 @@ namespace iBeaconSimulateDemo
                             break;
                         case BluetoothLEAdvertisementPublisherStatus.Stopped:
                             Stop.Begin();
+                            state = DisplayStates.Done;
                             break;
                         case BluetoothLEAdvertisementPublisherStatus.Created:
                             break;
